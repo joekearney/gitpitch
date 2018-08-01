@@ -31,10 +31,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import javax.inject.*;
 import play.Logger;
-import play.Logger.ALogger;
-
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /*
  * Git Repository Service manager.
@@ -51,6 +47,7 @@ public class GRSManager {
     private final BitBucket bitBucketService;
     private final Gitea giteaService;
     private final Gogs gogsService;
+    private final RawHttp rawHttpService;
     private final GitBucket gitBucketService;
     private final Map<String,GRS> grsStore = new HashMap<String,GRS>();
     private GRS grsDefault;
@@ -63,6 +60,7 @@ public class GRSManager {
                       Gitea giteaService,
                       Gogs gogsService,
                       GitBucket gitBucketService,
+                      RawHttp rawHttpService,
                       Runtime runtime) {
 
         this.diskService = diskService;
@@ -84,6 +82,9 @@ public class GRSManager {
 
         this.gitBucketService = gitBucketService;
         this.gitBucketService.init(this, diskService);
+
+        this.rawHttpService = rawHttpService;
+        this.rawHttpService.init(this, diskService);
 
         this.runtime = runtime;
 
@@ -166,6 +167,10 @@ public class GRSManager {
             case GitBucket.TYPE:
                 log.debug("getService: matching GitBucket");
                 service = gitBucketService;
+                break;
+            case RawHttp.TYPE:
+                log.debug("getService: matching RawHttp");
+                service = rawHttpService;
                 break;
             default:
                 log.debug("getService: defaulting GitHub");
